@@ -2,17 +2,19 @@ services:
   sql:
     image: mysql:8.0
     restart: always
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: studentapp
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p1234"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p1234 || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 40s   # 🔥 VERY IMPORTANT
 
   backend:
     build:
@@ -27,7 +29,7 @@ services:
       DB_PASSWORD: 1234
       DB_NAME: studentapp
     expose:
-      - "8080"   # internal only
+      - "8080"
 
   frontend:
     build:
@@ -35,7 +37,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8081:80"   # public access
+      - "8081:80"
 
 volumes:
   mysql_data:
