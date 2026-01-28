@@ -25,7 +25,7 @@ services:
       DB_PASSWORD: root123
       DB_NAME: studentapp
     ports:
-      - "8080:8080"
+      - "8081:8080"   # 🔥 FIXED
 
   frontend:
     image: studentapp-frontend
