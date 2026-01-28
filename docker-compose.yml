@@ -1,24 +1,29 @@
+version: "3.8"
+
 services:
   sql:
     image: mysql:8.0
+    container_name: mysql
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: studentapp
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p1234 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-      start_period: 40s   # 🔥 VERY IMPORTANT
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot123"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
 
   backend:
-    build:
-      context: ./BE
+    image: studentapp-backend
+    container_name: tomcat-backend
     depends_on:
       sql:
         condition: service_healthy
@@ -26,18 +31,18 @@ services:
       DB_HOST: sql
       DB_PORT: 3306
       DB_USER: root
-      DB_PASSWORD: 1234
+      DB_PASSWORD: root123
       DB_NAME: studentapp
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
 
   frontend:
-    build:
-      context: ./FE
+    image: studentapp-frontend
+    container_name: apache-frontend
     depends_on:
       - backend
     ports:
-      - "8081:80"
+      - "80:80"
 
 volumes:
   mysql_data:
