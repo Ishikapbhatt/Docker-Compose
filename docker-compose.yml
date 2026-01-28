@@ -9,10 +9,10 @@ services:
       - mysql_data:/var/lib/mysql
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p1234"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   backend:
     build:
@@ -27,15 +27,15 @@ services:
       DB_PASSWORD: 1234
       DB_NAME: studentapp
     expose:
-      - "8080"     # internal only
+      - "8080"   # internal only
 
   frontend:
     build:
       context: ./FE
-    ports:
-      - "8081:80"  # public access
     depends_on:
       - backend
+    ports:
+      - "8081:80"   # public access
 
 volumes:
   mysql_data:
