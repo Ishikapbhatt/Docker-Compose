@@ -6,18 +6,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: studentdb
-      MYSQL_USER: student
-      MYSQL_PASSWORD: student123
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass123
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+
 
   tomcat-backend:
     image: tomcat:10.1-jdk17
